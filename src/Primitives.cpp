@@ -79,6 +79,9 @@ Triangle::Triangle(Vec3 const & v0, Vec3 const & v1, Vec3 const & v2, RGB const 
   surfaceNormal = dir1 ^ dir2;
   area_ = 0.5 * surfaceNormal.length();
   surfaceNormal.normalize();
+  vertexNormal[0] = surfaceNormal;
+  vertexNormal[1] = surfaceNormal;
+  vertexNormal[2] = surfaceNormal;
 }
 
 bool
@@ -122,10 +125,11 @@ Vec3
 Triangle::calculateNormal(Vec3 const & position) const
 {
   // Assumption: points assumed to be in counter clockwise direction
+  Vec3 local_position = Vec3(worldToModel_* Vec4(position, 1.0));
   double weight1 = 0, weight2 = 0, weight3 = 0;
-  weight1 = ((position - verts[1])^(position - verts[2])).length()*0.5/area_;
-  weight2 = ((position - verts[0])^(position - verts[2])).length()*0.5/area_;
-  weight3 = ((position - verts[0])^(position - verts[1])).length()*0.5/area_;
+  weight1 = ((local_position - verts[1])^(local_position - verts[2])).length()*0.5/area_;
+  weight2 = ((local_position - verts[0])^(local_position - verts[2])).length()*0.5/area_;
+  weight3 = ((local_position - verts[0])^(local_position - verts[1])).length()*0.5/area_;
 
   Vec3 local_normal_direction = vertexNormal[0]*weight1 + vertexNormal[1]*weight2 + vertexNormal[2]*weight3;
   local_normal_direction.normalize();
@@ -150,59 +154,59 @@ double
 Triangle::getArea(){ return area_; }
 
 void
-Triangle::pushvert1(Triangle* tri){ vert1Common.push_back(tri); }
+Triangle::addVertNorm1(Vec3 x){ vertexNormal[0] += x; }
 
 void
-Triangle::pushvert2(Triangle* tri){ vert2Common.push_back(tri); }
+Triangle::addVertNorm2(Vec3 x){ vertexNormal[1] += x; }
 
 void
-Triangle::pushvert3(Triangle* tri){ vert3Common.push_back(tri); }
+Triangle::addVertNorm3(Vec3 x){ vertexNormal[2] += x; }
 
 void
 Triangle::findCommon(Triangle* tri) {
-  if(verts[0] == (tri->getvert1)()){ pushvert1(tri); (tri->pushvert1)(this); }
-  else if(verts[0] == (tri->getvert2)()){ pushvert1(tri); (tri->pushvert2)(this); }
-  else if(verts[0] == (tri->getvert3)()){ pushvert1(tri); (tri->pushvert3)(this); }
+  if(verts[0] == (tri->getvert1)()){
+    addVertNorm1(tri->getSurfaceNormal());
+    tri -> addVertNorm1(surfaceNormal);
+  }
+  else if(verts[0] == (tri->getvert2)()){
+    addVertNorm1(tri->getSurfaceNormal());
+    tri -> addVertNorm2(surfaceNormal);
+  }
+  else if(verts[0] == (tri->getvert3)()){
+    addVertNorm1(tri->getSurfaceNormal());
+    tri -> addVertNorm3(surfaceNormal);
+  }
 
-  if(verts[1] == (tri->getvert1)()){ pushvert2(tri); (tri->pushvert1)(this); }
-  else if(verts[1] == (tri->getvert2)()){ pushvert2(tri); (tri->pushvert2)(this); }
-  else if(verts[1] == (tri->getvert3)()){ pushvert2(tri); (tri->pushvert3)(this); }
+  if(verts[1] == (tri->getvert1)()){
+    addVertNorm2(tri->getSurfaceNormal());
+    tri -> addVertNorm1(surfaceNormal);
+  }
+  else if(verts[1] == (tri->getvert2)()){
+    addVertNorm2(tri->getSurfaceNormal());
+    tri -> addVertNorm2(surfaceNormal);
+  }
+  else if(verts[1] == (tri->getvert3)()){
+    addVertNorm2(tri->getSurfaceNormal());
+    tri -> addVertNorm3(surfaceNormal);
+  }
 
-  if(verts[2] == (tri->getvert1)()){ pushvert3(tri); (tri->pushvert1)(this); }
-  else if(verts[2] == (tri->getvert2)()){ pushvert3(tri); (tri->pushvert2)(this); }
-  else if(verts[2] == (tri->getvert3)()){ pushvert3(tri); (tri->pushvert3)(this); }
+  if(verts[2] == (tri->getvert1)()){
+    addVertNorm3(tri->getSurfaceNormal());
+    tri -> addVertNorm1(surfaceNormal);
+  }
+  else if(verts[2] == (tri->getvert2)()){
+    addVertNorm3(tri->getSurfaceNormal());
+    tri -> addVertNorm2(surfaceNormal);
+  }
+  else if(verts[2] == (tri->getvert3)()){
+    addVertNorm3(tri->getSurfaceNormal());
+    tri -> addVertNorm3(surfaceNormal);
+  }
 }
 
 void
-Triangle::computeVertexNormal(){
-  double weight = 0;
-  vertexNormal[0] = Vec3(0,0,0);
-  vertexNormal[1] = Vec3(0,0,0);
-  vertexNormal[2] = Vec3(0,0,0);
-
-  for(unsigned int i=0; i<vert1Common.size(); i++){
-    Triangle* obj = vert1Common[i];
-    vertexNormal[0] += (*obj).getSurfaceNormal(); // * (*obj).getArea();
-    weight += 1; // (*obj).getArea();
-  }
-  vertexNormal[0] = vertexNormal[0]/weight;
+Triangle::computeVertexNormal() {
   vertexNormal[0].normalize();
-
-  weight = 0;
-  for(unsigned int i=0; i<vert2Common.size(); i++){
-    Triangle* obj = vert2Common[i];
-    vertexNormal[1] += (*obj).getSurfaceNormal(); // * (*obj).getArea();
-    weight += 1; // (*obj).getArea();
-  }
-  vertexNormal[1] = vertexNormal[1]/weight;
   vertexNormal[1].normalize();
-
-  weight = 0;
-  for(unsigned int i=0; i<vert3Common.size(); i++){
-    Triangle* obj = vert3Common[i];
-    vertexNormal[2] += (*obj).getSurfaceNormal(); // * (*obj).getArea();
-    weight += 1; // (*obj).getArea();
-  }
-  vertexNormal[2] = vertexNormal[2]/weight;
   vertexNormal[2].normalize();
 }

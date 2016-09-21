@@ -69,7 +69,7 @@ class World
     void trianglesUpdate(Triangle* tri);
 
     /** Custom Function. */
-    void trianglesComputerVertexNormal();
+    void trianglesComputeVertexNormal();
 
   private:
     std::vector<Primitive *> primitives_;

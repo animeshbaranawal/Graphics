@@ -75,7 +75,7 @@ World::trianglesUpdate(Triangle* tri) {
 }
 
 void
-World::trianglesComputerVertexNormal(){
+World::trianglesComputeVertexNormal(){
   for(unsigned int i=0; i < triangles.size(); i++){
     (*triangles[i]).computeVertexNormal();
   }

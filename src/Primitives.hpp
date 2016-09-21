@@ -100,7 +100,9 @@ class Triangle : public Primitive
     void pushvert1(Triangle* tri); /* custome function */
     void pushvert2(Triangle* tri); /* custome function */
     void pushvert3(Triangle* tri); /* custome function */
-
+    void addVertNorm1(Vec3 x); /* custome function */
+    void addVertNorm2(Vec3 x); /* custome function */
+    void addVertNorm3(Vec3 x); /* custome function */
     void computeVertexNormal(); /* custome function */
 
   private:
@@ -108,9 +110,6 @@ class Triangle : public Primitive
     double area_;
     Vec3 surfaceNormal;
     Vec3 vertexNormal[3];
-    std::vector<Triangle*> vert1Common;
-    std::vector<Triangle*> vert2Common;
-    std::vector<Triangle*> vert3Common;
 };
 
 #endif  // __Primitive_hpp__

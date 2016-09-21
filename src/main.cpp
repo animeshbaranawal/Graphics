@@ -220,7 +220,7 @@ importSceneToWorld(SceneInstance * inst, Mat4 localToWorld, int time)
       world->addPrimitive(tri);
 			world->trianglesUpdate(tri);
     }
-		world->trianglesComputerVertexNormal();
+		world->trianglesComputeVertexNormal();
   }
 
   std::cout << "Imported scene file" << std::endl;
