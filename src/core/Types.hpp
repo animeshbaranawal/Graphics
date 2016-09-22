@@ -46,8 +46,10 @@ class Ray
     Vec3 e_;
     Vec3 d_;
     double min_t_;
+    bool refracted_;
+    double eta_;
 
-    Ray(Vec3 const & start, Vec3 const & dir, double min_t);
+    Ray(Vec3 const & start, Vec3 const & dir, double min_t, bool refracted, double eta);
 
   public:
 
@@ -55,9 +57,9 @@ class Ray
     Ray(Ray const & r);
 
     static Ray fromOriginAndDirection(Vec3 const & start, Vec3 const & dir,
-                                      double min_t = std::numeric_limits<double>::infinity());
+                                      double min_t = std::numeric_limits<double>::infinity(), bool refracted = false, double eta = 1);
     static Ray fromOriginAndEnd(Vec3 const & start, Vec3 const & end,
-                                double min_t = std::numeric_limits<double>::infinity());
+                                double min_t = std::numeric_limits<double>::infinity(), bool refracted = false, double eta = 1);
 
     // Special functions
 
@@ -69,10 +71,13 @@ class Ray
     Vec3 const & start() const { return e_; }
     Vec3 const & direction() const { return d_; }
     double minT() const { return min_t_; }
-
+    bool isRefracted() const { return refracted_; }
+    double getEta() const { return eta_; }
     // Setter functions
 
     void setMinT(double t);
+    void setRefracted(bool refracted);
+    void setEta(double eta);
 };
 
 /****************************************************************
@@ -212,11 +217,13 @@ inline Ray::Ray()
 {
 }
 
-inline Ray::Ray(Vec3 const & start, Vec3 const & dir, double min_t)
+inline Ray::Ray(Vec3 const & start, Vec3 const & dir, double min_t, bool refracted, double eta)
 {
   e_ = start;
   d_ = dir;
   min_t_ = min_t;
+  refracted_ = refracted;
+  eta_ = eta;
 }
 
 inline Ray::Ray(Ray const & r)
@@ -224,16 +231,18 @@ inline Ray::Ray(Ray const & r)
   e_ = r.e_;
   d_ = r.d_;
   min_t_ = r.min_t_;
+  refracted_ = r.refracted_;
+  eta_ = r.eta_;
 }
 
-inline Ray Ray::fromOriginAndDirection(Vec3 const & start, Vec3 const & dir, double min_t)
+inline Ray Ray::fromOriginAndDirection(Vec3 const & start, Vec3 const & dir, double min_t, bool refracted, double eta)
 {
-  return Ray(start, dir, min_t);
+  return Ray(start, dir, min_t, refracted, eta);
 }
 
-inline Ray Ray::fromOriginAndEnd(Vec3 const & start, Vec3 const & end, double min_t)
+inline Ray Ray::fromOriginAndEnd(Vec3 const & start, Vec3 const & end, double min_t, bool refracted, double eta)
 {
-  return Ray(start, end - start, min_t);
+  return Ray(start, end - start, min_t, refracted, eta);
 }
 
 // Special functions
@@ -255,6 +264,14 @@ inline void Ray::setMinT(double t)
   min_t_ = t;
 }
 
+inline void Ray::setRefracted(bool refracted)
+{
+  refracted_ = refracted;
+}
+
+inline void Ray::setEta(double eta){
+  eta_ = eta;
+}
 
 /****************************************************************
  *                                                              *

@@ -5,7 +5,7 @@
 
 (Material sphere2mat
     (color .9 .4 .5)
-    (ma .4) (ml .2) (ms .5) (msp 20) (msm 0) (mt 0) (mtn 1)
+    (ma .4) (ml .2) (ms .5) (msp 20) (msm 0) (mt .7) (mtn 1.3)
 )
 
 (Material sphere3mat
@@ -26,7 +26,7 @@
 )
 
 (Light pt
-    (type 3) (color 1.39 .2 .2) (side 2)
+    (type 2) (color 1.39 .2 .2)
 )
 
 (Camera cam

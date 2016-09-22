@@ -24,14 +24,7 @@ int max_trace_depth = 2;
 RGB
 getShadedColor(Primitive const & primitive, Vec3 const & pos, Ray const & ray)
 {
-  // IMPLEMENT_ME(__FILE__, __LINE__);
-
-  // Use the "world" global variable to access the lights in the input file.
-  //  Please be sure to read the following classes in Types.hpp:
-  //   - RGB
-  //   - Material
-  //   - Ray
-	Material objectMaterial = primitive.getMaterial();
+  Material objectMaterial = primitive.getMaterial();
   	RGB objectColor = primitive.getColor();
   	RGB materialS = objectMaterial.getMSM()*objectColor + (1 - objectMaterial.getMSM())*RGB(1,1,1);
   	RGB totalColorObject = objectMaterial.getMA()*objectColor*(*world).getAmbientLightColor();
@@ -74,22 +67,47 @@ traceRay(Ray & ray, int depth)
   if (depth > max_trace_depth)
     return RGB(0, 0, 0);
 
-  // IMPLEMENT_ME(__FILE__, __LINE__);
   Primitive* object = (*world).intersect(ray);
 
   if(object != NULL){
   	Material objectMaterial = (*object).getMaterial();
   	RGB objectColor = (*object).getColor();
   	Vec3 primitiveHitPosition = ray.start() + ray.direction()*ray.minT();
-  	Vec3 primitiveHitNormal = (*object).calculateNormal(primitiveHitPosition);
+		RGB totalColor = getShadedColor(*object, primitiveHitPosition, ray);
+		RGB reflectedColor = RGB(0,0,0);
+		RGB refractedColor = RGB(0,0,0);
+
+		Vec3 primitiveHitNormal = (*object).calculateNormal(primitiveHitPosition);
+		if(ray.isRefracted()){ primitiveHitNormal = -primitiveHitNormal; }
   	Vec3 viewingDir = ray.direction(); viewingDir.normalize();
 
-  	Vec3 bounceDir = viewingDir - 2*(viewingDir*primitiveHitNormal)*primitiveHitNormal;
-  	Vec3 bouncePos = primitiveHitPosition + 0.0001*primitiveHitNormal;
-  	Ray bounceRay = Ray::fromOriginAndDirection(bouncePos,bounceDir);
+		/** for reflected ray */
+		if(!ray.isRefracted()){
+			Vec3 bounceDir = viewingDir - 2*(viewingDir*primitiveHitNormal)*primitiveHitNormal;
+  		Vec3 bouncePos = primitiveHitPosition + 0.0001*primitiveHitNormal;
+  		Ray bounceRay = Ray::fromOriginAndDirection(bouncePos,bounceDir);
+			bounceRay.setRefracted(ray.isRefracted()); bounceRay.setEta(ray.getEta());
+			reflectedColor = objectMaterial.getMR()*objectColor*traceRay(bounceRay,depth+1);
+		}
 
-  	RGB totalColor = getShadedColor(*object, primitiveHitPosition, ray);
-  	return totalColor + objectMaterial.getMR()*objectColor*traceRay(bounceRay,depth+1);
+		/** for refracted ray */
+		double cosTheta1 = -viewingDir*primitiveHitNormal;
+		double eta1 = ray.getEta(), eta2;
+		if(ray.isRefracted()){ eta2 = 1; }
+		else{
+			eta2 = objectMaterial.getMTN();
+		}
+		double sinTheta2sq = (eta1/eta2)*(eta1/eta2)*(1 - cosTheta1*cosTheta1);
+		if(sinTheta2sq < 1){
+			double cosTheta2 = std::sqrt(1 - sinTheta2sq);
+			Vec3 refrDir = (eta1/eta2)*viewingDir + ((eta1/eta2)*cosTheta1 - cosTheta2)*primitiveHitNormal;
+  		Vec3 refrPos = primitiveHitPosition - 0.0001*primitiveHitNormal;
+  		Ray refrRay = Ray::fromOriginAndDirection(refrPos,refrDir);
+			refrRay.setRefracted(!ray.isRefracted()); refrRay.setEta(eta2);
+			refractedColor = objectMaterial.getMT()*objectColor*traceRay(refrRay,depth+1);
+		}
+
+  	return totalColor + reflectedColor + refractedColor;
   }
 
   return RGB(0,0,0);
