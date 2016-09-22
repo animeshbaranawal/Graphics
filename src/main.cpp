@@ -42,22 +42,28 @@ getShadedColor(Primitive const & primitive, Vec3 const & pos, Ray const & ray)
 	for(World::LightConstIterator i = world->lightsBegin(); i != world->lightsEnd(); ++i){
 
 		bool isPointSource;
-		Ray shadow = (*(*i)).getShadowRay(pos+0.0001*normal,isPointSource);
-		Primitive* shadowObject = (*world).intersect(shadow);
-		if(shadowObject == NULL){
-	  		Vec3 lightDir = (*(*i)).getIncidenceVector(pos);
-			RGB lambertianColorObject = objectMaterial.getML()*objectColor*(*(*i)).getColor(pos)*std::max(normal*lightDir,0.0);
-			totalColorObject += lambertianColorObject;
+		int seed = rand()%100000;
+		(*(*i)).setSeed(seed);
+		std::vector<Ray> shadow = (*(*i)).getShadowRay(pos+0.0001*normal,isPointSource);
+		std::vector<Vec3> lightDir = (*(*i)).getIncidenceVector(pos);
+		srand(time(NULL));
 
-			Vec3 reflectDir = -lightDir + 2*(lightDir*normal)*normal;
-			reflectDir.normalize();
-			RGB specularColorObject = objectMaterial.getMS()*materialS*(*(*i)).getColor(pos)*std::pow(std::max(-reflectDir*viewingDir,0.0),objectMaterial.getMSP());
-			totalColorObject += specularColorObject;
+		for(unsigned int j=0; j<shadow.size(); j++){
+			Primitive* shadowObject = (*world).intersect(shadow[j]);
+			if(shadowObject == NULL){
+				RGB lightColor = (*(*i)).getColor(lightDir[j]); lightDir[j].normalize();
+				RGB lambertianColorObject = objectMaterial.getML()*objectColor*lightColor*std::max(normal*lightDir[j],0.0);
+				totalColorObject += lambertianColorObject/std::pow(shadow.size(),0.75);
+
+				Vec3 reflectDir = -lightDir[j] + 2*(lightDir[j]*normal)*normal;
+				reflectDir.normalize();
+				RGB specularColorObject = objectMaterial.getMS()*materialS*lightColor*std::pow(std::max(-reflectDir*viewingDir,0.0),objectMaterial.getMSP());
+				totalColorObject += specularColorObject/std::pow(shadow.size(),0.75);
+			}
 		}
+	}
 
-  	}
-
-  	return totalColorObject;
+  return totalColorObject;
 }
 
 // Raytrace a single ray backwards into the scene, calculating the total color (summed up over all reflections/refractions) seen
@@ -118,7 +124,7 @@ renderWithRaytracing()
       }
 
       frame->setColor(sample, c / (double)rpp);
-			std::cout << xi << " " << yi << std::endl;
+			// std::cout << xi << " " << yi << std::endl;
   	}
   }
 }
@@ -188,6 +194,15 @@ importSceneToWorld(SceneInstance * inst, Mat4 localToWorld, int time)
       li->setPosition(localToWorld * pos);
       world->addLight(li);
     }
+		else if (l.type == LIGHT_AREA_SQUARE)
+		{
+			AreaLightSquare * li = new AreaLightSquare(l.color, l.falloff, l.deadDistance);
+			Vec3 pos(0, 0, 0);
+      li->setPosition(localToWorld * pos);
+			// std::cout << l.side << std::endl;
+			li->setSide(l.side);
+      world->addLight(li);
+		}
     else if (l.type == LIGHT_SPOT)
     {
       throw "oh no";

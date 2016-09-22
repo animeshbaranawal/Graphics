@@ -26,7 +26,7 @@
 )
 
 (Light pt
-    (type 2) (color 1.39 .2 .2)
+    (type 3) (color 1.39 .2 .2) (side 2)
 )
 
 (Camera cam

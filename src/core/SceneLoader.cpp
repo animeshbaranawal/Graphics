@@ -842,6 +842,9 @@ void SceneLoader::setLightDefaults(SceneGroup * n)
   if (n->light_->falloff_ == NULL)
     n->light_->falloff_ = new ConstValue(0);
 
+  if (n->light_->side_ == NULL)
+    n->light_->side_ = new ConstValue(0);
+
   if (n->light_->type_ == NULL)
     n->light_->type_ = new ConstValue(LIGHT_AMBIENT);
 }
@@ -914,6 +917,19 @@ bool SceneLoader::doLight(istream & str, string & name)
           {
             cleanAfter(values, 1);
             n->light_->deadDistance_ = values[0];
+          }
+        }
+        else if (cmd == "side")
+        {
+          if (getValues(str, values) < 1)
+          {
+            *err << "Side with no parameters at ";
+            errLine(str.tellg());
+          }
+          else
+          {
+            cleanAfter(values, 1);
+            n->light_->side_ = values[0];
           }
         }
         else if (cmd == "angularfalloff")

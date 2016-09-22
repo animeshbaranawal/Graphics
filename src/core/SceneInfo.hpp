@@ -36,7 +36,7 @@ enum
 /** Light types. */
 enum
 {
-  LIGHT_AMBIENT, LIGHT_DIRECTIONAL, LIGHT_POINT, LIGHT_SPOT
+  LIGHT_AMBIENT, LIGHT_DIRECTIONAL, LIGHT_POINT, LIGHT_AREA_SQUARE, LIGHT_SPOT
 };
 
 /** Material coefficients. */
@@ -68,11 +68,12 @@ struct LightInfo
   double falloff;
   double angularFalloff;
   double deadDistance;
+  double side;
 
   LightInfo() {}
 
-  LightInfo(int type, RGB color, double falloff = 2, double angularFalloff = 0.1, double deadDistance = 0.1)
-    : type(type), color(color), falloff(falloff), angularFalloff(angularFalloff), deadDistance(deadDistance)
+  LightInfo(int type, RGB color, double falloff = 2, double angularFalloff = 0.1, double deadDistance = 0.1, double side = 0)
+    : type(type), color(color), falloff(falloff), angularFalloff(angularFalloff), deadDistance(deadDistance), side(side)
   {}
 };
 
