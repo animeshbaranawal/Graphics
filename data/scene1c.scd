@@ -14,8 +14,8 @@
 )
 
 (Sphere sph1 (radius 2) (material sphere1mat))
-(Sphere sph2 (radius 2) (material sphere2mat))
-(Sphere sph3 (radius 2) (material sphere3mat))
+(Sphere sph2 (radius 2.5) (material sphere2mat))
+(Sphere sph3 (radius 1.0) (material sphere3mat))
 
 (Light amb
     (type 0) (color .5 .2 .2)
@@ -26,7 +26,7 @@
 )
 
 (Light pt
-    (type 2) (color 1.39 .2 .2)
+    (type 3) (color 1.39 .2 .2) (falloff 1) (deaddistance 1) (side 1)
 )
 
 (Camera cam
@@ -43,8 +43,8 @@
     (I amb1 amb)
     (I pt1 pt (T 0 0 -14))
     (I s1 sph1 (T -2.5 -1.5 -17.0))
-    (I s2 sph2 (T 0 4.0 -17))
-    (I s3 sph3 (T 1.5 -1.5 -17.0))
+    (I s2 sph2 (T 0 4.0 -25))
+    (I s3 sph3 (T 1.5 -1.5 -10.0))
 )
 
 (Render  threespheres)

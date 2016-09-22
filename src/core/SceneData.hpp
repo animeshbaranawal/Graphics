@@ -356,7 +356,7 @@ class ParametricLight
     friend class SceneLoader;
 
   public:
-    ParametricLight() : type_(NULL), color_(NULL), falloff_(NULL), angularFalloff_(NULL), deadDistance_(NULL) {}
+    ParametricLight() : type_(NULL), color_(NULL), falloff_(NULL), angularFalloff_(NULL), deadDistance_(NULL), side_(NULL) {}
     ~ParametricLight()
     {
       delete type_;

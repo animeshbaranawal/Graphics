@@ -143,13 +143,11 @@ DirectionalLight::getShadowRay(Vec3 const & position, bool & use_dist) const
 
 AreaLightSquare::AreaLightSquare(RGB const & illumination) : Light(illumination)
 {
-  // intentionally empty
 }
 
 AreaLightSquare::AreaLightSquare(RGB const & illumination, double falloff, double dead_distance)
 : Light(illumination, falloff, dead_distance)
 {
-  // intentionally empty
 }
 
 RGB
@@ -176,26 +174,20 @@ AreaLightSquare::setSide(double const & side)
 std::vector<Vec3>
 AreaLightSquare::getIncidenceVector(Vec3 const & position) const
 {
-  int NUM_SHADOW_RAYS_PER_EDGE = 10;
-
-  double xStep = side_/NUM_SHADOW_RAYS_PER_EDGE;
-  double yStep = side_/NUM_SHADOW_RAYS_PER_EDGE;
-  double startX = pos_.x() - side_/2;
+  double xStep = 0.25;
+  double yStep = 0.25;
   double startY = pos_.y() - side_/2;
   std::vector<Vec3> incidentVectors;
 
-  srand(0);
-  for(int i = 0; i < NUM_SHADOW_RAYS_PER_EDGE; i++){
-    for(int j = 0; j < NUM_SHADOW_RAYS_PER_EDGE; j++){
-      // Some random jitter to break up patterns
-      double jitter_x = 0.25 * (std::rand() / (double)RAND_MAX) * xStep;
-      double jitter_y = 0.25 * (std::rand() / (double)RAND_MAX) * yStep;
-      Vec3 areaPos_ = Vec3(startX + jitter_x, startY + jitter_y, pos_.z());
+  srand(seed);
+  for(; startY < pos_.y() + side_/2; startY += yStep){
+    double startX = pos_.x() - side_/2;
+    for(; startX < pos_.x() + side_/2; startX += xStep){
+      double jitter_x = 0.15 * (std::rand() / (double)RAND_MAX);
+      double jitter_y = 0.15 * (std::rand() / (double)RAND_MAX);
+      Vec3 areaPos_ = Vec3(std::min(startX + jitter_x, pos_.x() + side_/2), std::min(startY + jitter_y, pos_.y() + side_/2), pos_.z());
       incidentVectors.push_back((areaPos_ - position));
-
-      startX += xStep;
     }
-    startY += yStep;
   }
 
   return incidentVectors;
@@ -205,26 +197,20 @@ std::vector<Ray>
 AreaLightSquare::getShadowRay(Vec3 const & position, bool & use_dist) const
 {
   use_dist = true;
-  int NUM_SHADOW_RAYS_PER_EDGE = 10;
-
-  double xStep = side_/NUM_SHADOW_RAYS_PER_EDGE;
-  double yStep = side_/NUM_SHADOW_RAYS_PER_EDGE;
-  double startX = pos_.x() - side_/2;
+  double xStep = 0.25;
+  double yStep = 0.25;
   double startY = pos_.y() - side_/2;
   std::vector<Ray> shadowRays;
 
-  srand(0);
-  for(int i = 0; i < NUM_SHADOW_RAYS_PER_EDGE; i++){
-    for(int j = 0; j < NUM_SHADOW_RAYS_PER_EDGE; j++){
-      // Some random jitter to break up patterns
-      double jitter_x = 0.25 * (std::rand() / (double)RAND_MAX) * xStep;
-      double jitter_y = 0.25 * (std::rand() / (double)RAND_MAX) * yStep;
-      Vec3 areaPos_ = Vec3(startX + jitter_x, startY + jitter_y, pos_.z());
+  srand(seed);
+  for(; startY < pos_.y() + side_/2; startY += yStep){
+    double startX = pos_.x() - side_/2;
+    for(; startX < pos_.x() + side_/2; startX += xStep){
+      double jitter_x = 0.15 * (std::rand() / (double)RAND_MAX);
+      double jitter_y = 0.15 * (std::rand() / (double)RAND_MAX);
+      Vec3 areaPos_ = Vec3(std::min(startX + jitter_x, pos_.x() + side_/2), std::min(startY + jitter_y, pos_.y() + side_/2), pos_.z());
       shadowRays.push_back(Ray::fromOriginAndEnd(position,areaPos_,1));
-
-      startX += xStep;
     }
-    startY += yStep;
   }
 
   return shadowRays;

@@ -22,6 +22,7 @@ class Light
     double falloff_;
     double angular_falloff_;
     double dead_distance_;
+    int seed;
 
   public:
     /** Destructor. */
@@ -50,6 +51,8 @@ class Light
      * all positive hit times indicate shadowing.
      */
     virtual std::vector<Ray> getShadowRay(Vec3 const & position, bool & use_dist) const = 0;
+
+    void setSeed(int s){ seed = s; }
 };
 
 /** Ambient light, constant throughout the scene. */

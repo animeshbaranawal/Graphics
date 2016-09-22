@@ -42,24 +42,26 @@ getShadedColor(Primitive const & primitive, Vec3 const & pos, Ray const & ray)
 	for(World::LightConstIterator i = world->lightsBegin(); i != world->lightsEnd(); ++i){
 
 		bool isPointSource;
+		int seed = rand()%100000;
+		(*(*i)).setSeed(seed);
 		std::vector<Ray> shadow = (*(*i)).getShadowRay(pos+0.0001*normal,isPointSource);
 		std::vector<Vec3> lightDir = (*(*i)).getIncidenceVector(pos);
-		std::cout << shadow.size() << " " << lightDir.size() << std::endl;
+		srand(time(NULL));
 
 		for(unsigned int j=0; j<shadow.size(); j++){
 			Primitive* shadowObject = (*world).intersect(shadow[j]);
 			if(shadowObject == NULL){
 				RGB lightColor = (*(*i)).getColor(lightDir[j]); lightDir[j].normalize();
 				RGB lambertianColorObject = objectMaterial.getML()*objectColor*lightColor*std::max(normal*lightDir[j],0.0);
-				totalColorObject += lambertianColorObject/shadow.size();
+				totalColorObject += lambertianColorObject/std::pow(shadow.size(),0.75);
 
 				Vec3 reflectDir = -lightDir[j] + 2*(lightDir[j]*normal)*normal;
 				reflectDir.normalize();
 				RGB specularColorObject = objectMaterial.getMS()*materialS*lightColor*std::pow(std::max(-reflectDir*viewingDir,0.0),objectMaterial.getMSP());
-				totalColorObject += specularColorObject/shadow.size();
+				totalColorObject += specularColorObject/std::pow(shadow.size(),0.75);
 			}
 		}
-  }
+	}
 
   return totalColorObject;
 }
@@ -122,7 +124,7 @@ renderWithRaytracing()
       }
 
       frame->setColor(sample, c / (double)rpp);
-			std::cout << xi << " " << yi << std::endl;
+			// std::cout << xi << " " << yi << std::endl;
   	}
   }
 }
@@ -197,6 +199,7 @@ importSceneToWorld(SceneInstance * inst, Mat4 localToWorld, int time)
 			AreaLightSquare * li = new AreaLightSquare(l.color, l.falloff, l.deadDistance);
 			Vec3 pos(0, 0, 0);
       li->setPosition(localToWorld * pos);
+			// std::cout << l.side << std::endl;
 			li->setSide(l.side);
       world->addLight(li);
 		}

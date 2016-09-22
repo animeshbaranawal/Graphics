@@ -25,6 +25,6 @@
 
 static int const IMAGE_WIDTH = 512;
 static int const IMAGE_HEIGHT = 512;
-static int const RAYS_PER_PIXEL_EDGE = 4;
+static int const RAYS_PER_PIXEL_EDGE = 2;
 
 #endif  // __Globals_hpp__
