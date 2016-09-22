@@ -42,22 +42,26 @@ getShadedColor(Primitive const & primitive, Vec3 const & pos, Ray const & ray)
 	for(World::LightConstIterator i = world->lightsBegin(); i != world->lightsEnd(); ++i){
 
 		bool isPointSource;
-		Ray shadow = (*(*i)).getShadowRay(pos+0.0001*normal,isPointSource);
-		Primitive* shadowObject = (*world).intersect(shadow);
-		if(shadowObject == NULL){
-	  		Vec3 lightDir = (*(*i)).getIncidenceVector(pos);
-			RGB lambertianColorObject = objectMaterial.getML()*objectColor*(*(*i)).getColor(pos)*std::max(normal*lightDir,0.0);
-			totalColorObject += lambertianColorObject;
+		std::vector<Ray> shadow = (*(*i)).getShadowRay(pos+0.0001*normal,isPointSource);
+		std::vector<Vec3> lightDir = (*(*i)).getIncidenceVector(pos);
+		std::cout << shadow.size() << " " << lightDir.size() << std::endl;
 
-			Vec3 reflectDir = -lightDir + 2*(lightDir*normal)*normal;
-			reflectDir.normalize();
-			RGB specularColorObject = objectMaterial.getMS()*materialS*(*(*i)).getColor(pos)*std::pow(std::max(-reflectDir*viewingDir,0.0),objectMaterial.getMSP());
-			totalColorObject += specularColorObject;
+		for(unsigned int j=0; j<shadow.size(); j++){
+			Primitive* shadowObject = (*world).intersect(shadow[j]);
+			if(shadowObject == NULL){
+				RGB lightColor = (*(*i)).getColor(lightDir[j]); lightDir[j].normalize();
+				RGB lambertianColorObject = objectMaterial.getML()*objectColor*lightColor*std::max(normal*lightDir[j],0.0);
+				totalColorObject += lambertianColorObject/shadow.size();
+
+				Vec3 reflectDir = -lightDir[j] + 2*(lightDir[j]*normal)*normal;
+				reflectDir.normalize();
+				RGB specularColorObject = objectMaterial.getMS()*materialS*lightColor*std::pow(std::max(-reflectDir*viewingDir,0.0),objectMaterial.getMSP());
+				totalColorObject += specularColorObject/shadow.size();
+			}
 		}
+  }
 
-  	}
-
-  	return totalColorObject;
+  return totalColorObject;
 }
 
 // Raytrace a single ray backwards into the scene, calculating the total color (summed up over all reflections/refractions) seen
@@ -188,6 +192,14 @@ importSceneToWorld(SceneInstance * inst, Mat4 localToWorld, int time)
       li->setPosition(localToWorld * pos);
       world->addLight(li);
     }
+		else if (l.type == LIGHT_AREA_SQUARE)
+		{
+			AreaLightSquare * li = new AreaLightSquare(l.color, l.falloff, l.deadDistance);
+			Vec3 pos(0, 0, 0);
+      li->setPosition(localToWorld * pos);
+			li->setSide(l.side);
+      world->addLight(li);
+		}
     else if (l.type == LIGHT_SPOT)
     {
       throw "oh no";
