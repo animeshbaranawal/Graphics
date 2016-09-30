@@ -842,6 +842,7 @@ void SceneLoader::setLightDefaults(SceneGroup * n)
   if (n->light_->falloff_ == NULL)
     n->light_->falloff_ = new ConstValue(0);
 
+  // default value for side is zero
   if (n->light_->side_ == NULL)
     n->light_->side_ = new ConstValue(0);
 
@@ -919,6 +920,7 @@ bool SceneLoader::doLight(istream & str, string & name)
             n->light_->deadDistance_ = values[0];
           }
         }
+        // add parsing functionality for side attribute of area light
         else if (cmd == "side")
         {
           if (getValues(str, values) < 1)

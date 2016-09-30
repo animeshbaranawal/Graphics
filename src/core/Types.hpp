@@ -71,13 +71,13 @@ class Ray
     Vec3 const & start() const { return e_; }
     Vec3 const & direction() const { return d_; }
     double minT() const { return min_t_; }
-    bool isRefracted() const { return refracted_; }
-    double getEta() const { return eta_; }
-    // Setter functions
+    bool isRefracted() const { return refracted_; } // is ray inside any object
+    double getEta() const { return eta_; } // refractive index of medium in which ray is travelling
 
+    // Setter functions
     void setMinT(double t);
-    void setRefracted(bool refracted);
-    void setEta(double eta);
+    void setRefracted(bool refracted); // set true if ray refracting into object else false
+    void setEta(double eta); // set refractive index of medium of ray
 };
 
 /****************************************************************

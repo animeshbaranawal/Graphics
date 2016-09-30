@@ -65,14 +65,15 @@ class World
     /** Print debugging stats. */
     void printStats() const;
 
-    /** Custom Function. */
+    /** Find triangles sharing common vertices and update their vertex normals */
     void trianglesUpdate(Triangle* tri);
 
-    /** Custom Function. */
+    /** Normalise vertex normals for all triangles */
     void trianglesComputeVertexNormal();
 
   private:
     std::vector<Primitive *> primitives_;
+    /* this vector made specifically for bookkeeping of triangles sharing vertices */
     std::vector<Triangle *> triangles;
     std::vector<Light *> lights_;
     AmbientLight ambientLight_;

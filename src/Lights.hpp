@@ -38,13 +38,14 @@ class Light
     virtual RGB getColor(Vec3 const & p) const;
 
     /**
-     * Returns the normalized vector describing the direction of light at a given position. The direction should be FROM the
-     * point TO the light source. This is used in the shading calculation.
+     * Returns a vector of normalized vectors describing the direction of lights at a given position. The direction should be FROM the
+     * point TO the light source. This is used in the shading calculation. We have used a vector since for an area light
+     * there are multiple incident rays
      */
     virtual std::vector<Vec3> getIncidenceVector(Vec3 const & position) const = 0;
 
     /**
-     * Get the ray from the given position to the light, used to check for shadows. The length of the ray's direction vector
+     * Get the rays from the given position to the light, used to check for shadows. The length of the ray's direction vector
      * should be the <i>unnormalized distance</i> from \a position to the light, so that hit times <= 1 indicate shadowing.
      * \a use_dist is normally set to true. For direction lights, which have no source position, the length of the direction
      * vector is arbitrary, and use_dist is set to false, indicating that the distance (i.e. time) check should be ignored --
@@ -52,6 +53,11 @@ class Light
      */
     virtual std::vector<Ray> getShadowRay(Vec3 const & position, bool & use_dist) const = 0;
 
+    /**
+     * this function is for controlling the random sampling of incident rays
+     * and shadow rays in area lights since we want the shadow rays and incident rays
+     * to be indentical and also want some random jittering
+     */
     void setSeed(int s){ seed = s; }
 };
 

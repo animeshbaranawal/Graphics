@@ -127,6 +127,8 @@ Triangle::calculateNormal(Vec3 const & position) const
   // Assumption: points assumed to be in counter clockwise direction
   Vec3 local_position = Vec3(worldToModel_* Vec4(position, 1.0));
   double weight1 = 0, weight2 = 0, weight3 = 0;
+
+  // find weights using triangular interpolation
   weight1 = ((local_position - verts[1])^(local_position - verts[2])).length()*0.5/area_;
   weight2 = ((local_position - verts[0])^(local_position - verts[2])).length()*0.5/area_;
   weight3 = ((local_position - verts[0])^(local_position - verts[1])).length()*0.5/area_;
@@ -164,19 +166,23 @@ Triangle::addVertNorm3(Vec3 x){ vertexNormal[2] += x; }
 
 void
 Triangle::findCommon(Triangle* tri) {
+  // if vertex 0 of this triangle and vertex 0 of tri triangle common
   if(verts[0] == (tri->getvert1)()){
     addVertNorm1(tri->getSurfaceNormal());
     tri -> addVertNorm1(surfaceNormal);
   }
+  // if vertex 0 of this triangle and vertex 1 of tri triangle common
   else if(verts[0] == (tri->getvert2)()){
     addVertNorm1(tri->getSurfaceNormal());
     tri -> addVertNorm2(surfaceNormal);
   }
+  // if vertex 0 of this triangle and vertex 2 of tri triangle common
   else if(verts[0] == (tri->getvert3)()){
     addVertNorm1(tri->getSurfaceNormal());
     tri -> addVertNorm3(surfaceNormal);
   }
 
+  // similarly for others
   if(verts[1] == (tri->getvert1)()){
     addVertNorm2(tri->getSurfaceNormal());
     tri -> addVertNorm1(surfaceNormal);

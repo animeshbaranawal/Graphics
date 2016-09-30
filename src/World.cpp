@@ -14,13 +14,12 @@ World::World()
 
 World::~World()
 {
-  // TODO Auto-generated destructor stub
+  // Auto-generated destructor stub
 }
 
 Primitive *
 World::intersect(Ray & r) const
 {
-  // IMPLEMENT_ME(__FILE__, __LINE__);
   Primitive* nearest = NULL;
 
   for(PrimitiveConstIterator i = primitivesBegin(); i != primitivesEnd(); ++i){

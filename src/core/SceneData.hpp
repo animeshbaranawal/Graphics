@@ -352,7 +352,7 @@ class ParametricLight
     ParametricValue * falloff_;
     ParametricValue * angularFalloff_;
     ParametricValue * deadDistance_;
-    ParametricValue * side_;
+    ParametricValue * side_; // add side_ parameter for area lights
     friend class SceneLoader;
 
   public:

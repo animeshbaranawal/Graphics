@@ -68,7 +68,7 @@ struct LightInfo
   double falloff;
   double angularFalloff;
   double deadDistance;
-  double side;
+  double side; // add side parameter for area lights
 
   LightInfo() {}
 

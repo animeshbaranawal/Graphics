@@ -83,6 +83,9 @@ PointLight::PointLight(RGB const & illumination, double falloff, double dead_dis
 RGB
 PointLight::getColor(Vec3 const & p) const
 {
+  // Since the fallout color depends the distance between
+  // the light source and object point, we pass the distance vector
+  // instead of position vector
   double distance = p.length();
   double scale = 1.0/(distance + dead_distance_);
   scale = std::pow(scale,falloff_);
@@ -98,6 +101,7 @@ PointLight::setPosition(Vec3 const & pos)
 std::vector<Vec3>
 PointLight::getIncidenceVector(Vec3 const & position) const
 {
+  // generate a single incident ray
   std::vector<Vec3> incidentVectors;
   incidentVectors.push_back((pos_ - position));
   return incidentVectors;
@@ -106,6 +110,7 @@ PointLight::getIncidenceVector(Vec3 const & position) const
 std::vector<Ray>
 PointLight::getShadowRay(Vec3 const & position, bool & use_dist) const
 {
+  // generate a single shadow ray
   use_dist = true;
   std::vector<Ray> shadowRays;
   shadowRays.push_back(Ray::fromOriginAndEnd(position,pos_,1));
@@ -127,6 +132,7 @@ DirectionalLight::setDirection(Vec3 const & dir)
 std::vector<Vec3>
 DirectionalLight::getIncidenceVector(Vec3 const & position) const
 {
+  // generate a single incident ray
   std::vector<Vec3> incidentVectors;
   incidentVectors.push_back((-1*dir_));
   return incidentVectors;
@@ -135,6 +141,7 @@ DirectionalLight::getIncidenceVector(Vec3 const & position) const
 std::vector<Ray>
 DirectionalLight::getShadowRay(Vec3 const & position, bool & use_dist) const
 {
+  // generate a single shadow ray
   use_dist = false;
   std::vector<Ray> shadowRays;
   shadowRays.push_back(Ray::fromOriginAndDirection(position,-dir_));
@@ -153,6 +160,9 @@ AreaLightSquare::AreaLightSquare(RGB const & illumination, double falloff, doubl
 RGB
 AreaLightSquare::getColor(Vec3 const & p) const
 {
+  // Since the fallout color depends the distance between
+  // the light source and object point, we pass the distance vector
+  // instead of position vector
   double distance = p.length();
   double scale = 1.0/(distance + dead_distance_);
   scale = std::pow(scale,falloff_);
@@ -179,6 +189,8 @@ AreaLightSquare::getIncidenceVector(Vec3 const & position) const
   double startY = pos_.y() - side_/2;
   std::vector<Vec3> incidentVectors;
 
+  // for every 0.25 x 0.25 square on area light, generate an incident ray
+  // with random jittering
   srand(seed);
   for(; startY < pos_.y() + side_/2; startY += yStep){
     double startX = pos_.x() - side_/2;
@@ -202,6 +214,8 @@ AreaLightSquare::getShadowRay(Vec3 const & position, bool & use_dist) const
   double startY = pos_.y() - side_/2;
   std::vector<Ray> shadowRays;
 
+  // for every 0.25 x 0.25 square on area light, generate a shadow ray
+  // with random jittering
   srand(seed);
   for(; startY < pos_.y() + side_/2; startY += yStep){
     double startX = pos_.x() - side_/2;

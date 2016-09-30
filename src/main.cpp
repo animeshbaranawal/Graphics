@@ -43,15 +43,21 @@ getShadedColor(Primitive const & primitive, Vec3 const & pos, Ray const & ray)
 
 		for(unsigned int j=0; j<shadow.size(); j++){
 			Primitive* shadowObject = (*world).intersect(shadow[j]);
+      // if shadow ray not intersects with anything
 			if(shadowObject == NULL){
+        // For area lights, we cannot average the phong colours from every sampled point
+        // since more light is coming at the point; neither can we add all the light since
+        // the image becomes too bright; we try to achieve a tradeoff by
+        // introducing this factor
+
 				RGB lightColor = (*(*i)).getColor(lightDir[j]); lightDir[j].normalize();
 				RGB lambertianColorObject = objectMaterial.getML()*objectColor*lightColor*std::max(normal*lightDir[j],0.0);
-				totalColorObject += lambertianColorObject/std::pow(shadow.size(),0.75);
+				totalColorObject += lambertianColorObject/std::pow(shadow.size(),0.90);
 
 				Vec3 reflectDir = -lightDir[j] + 2*(lightDir[j]*normal)*normal;
 				reflectDir.normalize();
 				RGB specularColorObject = objectMaterial.getMS()*materialS*lightColor*std::pow(std::max(-reflectDir*viewingDir,0.0),objectMaterial.getMSP());
-				totalColorObject += specularColorObject/std::pow(shadow.size(),0.75);
+				totalColorObject += specularColorObject/std::pow(shadow.size(),0.90);
 			}
 		}
 	}
@@ -64,6 +70,13 @@ getShadedColor(Primitive const & primitive, Vec3 const & pos, Ray const & ray)
 RGB
 traceRay(Ray & ray, int depth)
 {
+  // Assumptions:
+  // Refractive index of the space between objects is 1; we will call it air
+  // Rays reflect and refract on hitting an object when in air
+  // Rays will only refract on hitting air when travelling inside object
+  // This is because we assume reflectivity of air to be 0
+  // There is some air present between any two objects
+
   if (depth > max_trace_depth)
     return RGB(0, 0, 0);
 
@@ -78,11 +91,13 @@ traceRay(Ray & ray, int depth)
 		RGB refractedColor = RGB(0,0,0);
 
 		Vec3 primitiveHitNormal = (*object).calculateNormal(primitiveHitPosition);
-		if(ray.isRefracted()){ primitiveHitNormal = -primitiveHitNormal; }
+    // if ray is present inside an object that i.e. it is refracted, the normal will be negative
+    if(ray.isRefracted()){ primitiveHitNormal = -primitiveHitNormal; }
   	Vec3 viewingDir = ray.direction(); viewingDir.normalize();
 
-		/** for reflected ray */
+		/** if ray present in air */
 		if(!ray.isRefracted()){
+      // generate a reflected ray
 			Vec3 bounceDir = viewingDir - 2*(viewingDir*primitiveHitNormal)*primitiveHitNormal;
   		Vec3 bouncePos = primitiveHitPosition + 0.0001*primitiveHitNormal;
   		Ray bounceRay = Ray::fromOriginAndDirection(bouncePos,bounceDir);
@@ -90,10 +105,10 @@ traceRay(Ray & ray, int depth)
 			reflectedColor = objectMaterial.getMR()*objectColor*traceRay(bounceRay,depth+1);
 		}
 
-		/** for refracted ray */
+		// generate refracted ray
 		double cosTheta1 = -viewingDir*primitiveHitNormal;
 		double eta1 = ray.getEta(), eta2;
-		if(ray.isRefracted()){ eta2 = 1; }
+		if(ray.isRefracted()){ eta2 = 1; } // if ray inside object, it must refract into air
 		else{
 			eta2 = objectMaterial.getMTN();
 		}

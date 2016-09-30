@@ -11,7 +11,7 @@
 	(color 0.75 0.75 0.75 )
 	(ma 0.0 ) (ml 0.0 ) (ms 0.2 ) (msp 40 ) (msm 1 ) (mt 0 ) (mtn 1 ))
 (Light amb (type 0 ) (color 0.2 0.2 0.2 ) )
-(Light pt1 (type 2 ) (color 20.8 20.8 20.8 )  (falloff 1 )  (deaddistance 0.1 ) )
+(Light pt1 (type 3 ) (color 20.8 20.8 20.8 )  (falloff 1 )  (deaddistance 0.1 ) (side 2))
 (Camera cam
 	(perspective 1 )
 	(l -1 ) (r 1 ) (b -1 ) (t 1 ) (n 3 )) #no far plane

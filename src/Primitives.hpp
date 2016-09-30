@@ -89,21 +89,18 @@ class Triangle : public Primitive
 
     bool intersect(Ray & ray) const;
     Vec3 calculateNormal(Vec3 const & position) const;
-    void findCommon(Triangle* tri); /* custome function */
+    void findCommon(Triangle* tri); /* find common vertices with triangle; update vertex normals accordingly */
 
-    Vec3 getvert1(); /* custome function */
-    Vec3 getvert2(); /* custome function */
-    Vec3 getvert3(); /* custome function */
-    Vec3 getSurfaceNormal(); /* custome function */
-    double getArea(); /* custome function */
+    Vec3 getvert1(); /* get vertex 0 */
+    Vec3 getvert2(); /* get vertex 1 */
+    Vec3 getvert3(); /* get vertex 2 */
+    Vec3 getSurfaceNormal(); /* get surface normal */
+    double getArea(); /* get area of triangle */
 
-    void pushvert1(Triangle* tri); /* custome function */
-    void pushvert2(Triangle* tri); /* custome function */
-    void pushvert3(Triangle* tri); /* custome function */
-    void addVertNorm1(Vec3 x); /* custome function */
-    void addVertNorm2(Vec3 x); /* custome function */
-    void addVertNorm3(Vec3 x); /* custome function */
-    void computeVertexNormal(); /* custome function */
+    void addVertNorm1(Vec3 x); /* add vector to normal at vertex 0 */
+    void addVertNorm2(Vec3 x); /* add vector to normal at vertex 1 */
+    void addVertNorm3(Vec3 x); /* add vector to normal at vertex 2 */
+    void computeVertexNormal(); /* normalise vertex normals */
 
   private:
     Vec3 verts[3];
