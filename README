@@ -21,7 +21,7 @@ Validation : Smooth objects are rendered as expected.
 
 2. Refraction - 1pt
 
-Assumptions : The medium between objects has a refractivity index of 1 and we will call it air. Between any two objects air is always present. If a ray is travelling in air, then reflection and refraction both can happen but if a ray is travelling inside an object, then only refraction can happen. We dont generate a refracted ray if (sin theta_2)^2 is greater than 1. The equations used are as per the slides.
+Assumptions : The medium between objects has a refractivity index of 1 and we will call it air. Between any two objects air is always present. If a ray is travelling in air, then reflection and refraction both can happen but if a ray is travelling inside an object, then only refraction can happen. We dont generate a refracted ray if (sin theta_2)^2 is greater than 1. The equations used are as per the slides. We are assuming that the object is not hollow from within. Also, this method may not work for planar objects like triangles.
 
 Function modified in main: RGB traceRay(Ray & ray, int depth)
 
