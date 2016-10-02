@@ -1,0 +1,62 @@
+Features Implemented
+====================
+
+1. Triangle Normals and Intersection and smoothing of their normals - 2pt
+
+Approach : We keep a track of triangles inserted in the world by creating a new vector named 'traingles' in world object. After inserting a triangle in world object in function 'importSceneToWorld' in main, we call function 'trianglesUpdate' of world object which updates the 'triangles' vector and for each triangle primitive present in the vector finds which traingles share a common vertex and updates the vertex normals accordingly. After all the triangles are inserted, we call the function 'trianglesComputeVertexNormal' which normalises all the vertex normals.
+
+Function modified in main: void importSceneToWorld(SceneInstance * inst, Mat4 localToWorld, int time)
+
+Variables added in world object: vector<Triangle *> triangles
+Functions added in world object: void trianglesUpdate(Triangle* tri), void trianglesComputeVertexNormal()
+
+Variables added in triangle object: double area_ , Vec3 vertexNormal[3], Vec3 surfaceNormal
+Functions added in triangle object: void findCommon(Triangle* tri), Vec3 getvert1(), Vec3 getvert2(), Vec3 getvert3(),
+				    Vec3 getSurfaceNormal(), double getArea(), void addVertNorm1(Vec3 x), void addVertNorm2(Vec3 x),
+				    void addVertNorm3(Vec3 x), void computeVertexNormal()
+Functions modified in triangle object: Traingle constructor, bool Triangle::intersect(Ray & ray) const,
+				       Vec3 Triangle::calculateNormal(Vec3 const & position) const 
+
+Validation : Smooth objects are rendered as expected.
+
+2. Refraction - 1pt
+
+Assumptions : The medium between objects has a refractivity index of 1 and we will call it air. Between any two objects air is always present. If a ray is travelling in air, then reflection and refraction both can happen but if a ray is travelling inside an object, then only refraction can happen. We dont generate a refracted ray if (sin theta_2)^2 is greater than 1. The equations used are as per the slides.
+
+Function modified in main: RGB traceRay(Ray & ray, int depth)
+
+Functions modifies in Ray object: Ray constructors and static constructors
+Variables added in Ray object: bool refracted_, double eta_
+Functions added in Ray object: bool isRefracted() const, double getEta() const, void setRefracted(bool refracted),
+			       void setEta(double eta)
+
+Validation : Cross verified with others, transparency and refraction effects visible
+
+3. Area Lights - 1pt
+
+Approach and Assumptions : The area light is assumed to be of a square shape always parallel to xy axis. The user can however specify the side of the area light and make it bigger or smaller. Rays are then samples on every 0.25 x 0.25 square on area light with a small jitter to remove artifacts. Since, incident rays and shadow rays actually form a vector of rays, these functions are also changed for other light primitives with output as a vector of size 1. Also, some core objects have been modifies so that user can give side as input. Also, since the area light is kind of a collection of point source lights it should be brighter than a single point source light but not too bright to destroy the aesthetics of the image. We have ensured this by adding all the colours and then dividing it by (number of rays)^0.9; 
+
+Functions modified in main: RGB getShadedColor(Primitive const & primitive, Vec3 const & pos, Ray const & ray),
+			    void importSceneToWorld(SceneInstance * inst, Mat4 localToWorld, int time)
+
+Class added in Lights object: AreaLightSquare
+Variables added in Lights object: seed
+
+Functions added in Lights object: void setSeed(int s)
+Functions modifies in Lights object: getIncidenceVector(Vec3 const & position), getShadowRay(Vec3 const & position, bool & use_dist)
+
+Changes in SceneData.hpp: added side_ in Parametric Light, modified constructor & destructor accordingly
+Changes in SceneInfo.hpp: added side in LightInfo, modified constructor accordingly
+Changes in SceneLoader.cpp: bool doLight(std::istream & str, std::string & name), void setCameraDefaults(SceneGroup * n)
+
+Validation : Soft shadows rendered as expected, image is also brighter
+
+
+Commands
+========
+
+time ../trace scene4_refraction.scd ../images/scene4_refraction.png 5 -> 116.75 seconds
+time ../trace scene5_refraction.scd ../images/scene5_refraction.png 5 -> 193.53 seconds
+time ../trace scene5_arealight.scd ../images/scene5_arealight.png -> 816.45 seconds
+time ../trace teapot.scd ../images/teapot.png -> 1017.36 seconds
+time ../trace dunkit.scd ../images/dunkit.png -> 123.64 seconds
